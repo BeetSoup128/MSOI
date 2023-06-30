@@ -329,6 +329,7 @@ class HDP(ttk.Frame):
         print(r)
 
     def refresh(self):
+        self.t.delete(*self.t.get_children())
         with open("./Cache/sav.json", 'r', encoding='utf-8') as f:
             self.sav = json.load(f)
         self.t.heading('nid', text="NovelID", anchor='w')
