@@ -14,15 +14,14 @@ sv_ttk.set_theme("dark")
 
 
 class MSP(ttk.Frame):
-    if os.path.exists("GUI.ini"):
+    try:
         conf = configparser.ConfigParser()
         conf.read("GUI.ini")
-        try:
-            Local_nam = tkinter.Variable(value=conf['user']['name'])
-            Local_pwd = tkinter.Variable(value=conf['user']['pwd'])
-        except BaseException:
-            Local_nam = tkinter.Variable(value="输入用户名")
-            Local_pwd = tkinter.Variable(value="输入密码")
+        Local_nam = tkinter.Variable(value=conf['user']['name'])
+        Local_pwd = tkinter.Variable(value=conf['user']['pwd'])
+    except BaseException:
+        Local_nam = tkinter.Variable(value="输入用户名")
+        Local_pwd = tkinter.Variable(value="输入密码")
     Local_url = tkinter.Variable(value="https://masiro.me")
     Local_State = tkinter.Variable(value="未登录")
 
