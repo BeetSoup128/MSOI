@@ -35,7 +35,7 @@ class Masiro:
 
     def __init__(self, debug=False) -> None:
         ops = webdriver.EdgeOptions()
-        if debug:
+        if not debug:
             ops.add_argument("-headless")
         logging.debug("init browser")
         self.Web = webdriver.ChromiumEdge(options=ops)

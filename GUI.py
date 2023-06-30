@@ -126,7 +126,6 @@ class MSP(ttk.Frame):
             threading.Thread(target=self.login_main).start()
 
     def login_main(self):
-        # print(f"name    ::{ self.Local_nam.get() }\npassword::{ self.Local_pwd.get() }")
         self.Local_Login = True
         self.Local_State.set("登陆中")
         try:
@@ -345,8 +344,8 @@ class MSOI(ttk.Notebook):
     def _sty_(self, sty: ttk.Style):
         sty.configure('my.TButton', font=('-size', 36))
 
-    def __init__(self, master, sty) -> None:
-        self.MSO = Masiro()
+    def __init__(self, master, sty, dbg:bool=False) -> None:
+        self.MSO = Masiro(dbg)
         self._sty_(sty)
         super().__init__(master)
         self.interpagedict = {
@@ -364,13 +363,13 @@ class MSOI(ttk.Notebook):
 
 
 class app():
-    def __init__(self,window:tkinter.Tk):
+    def __init__(self,window:tkinter.Tk,debug:bool=False):
         self.window = window
         self.window.geometry('720x480')
         sv_ttk.set_theme("dark")
-        self.Local_MSOI = MSOI(self.window, ttk.Style())
+        self.Local_MSOI = MSOI(self.window, ttk.Style(),debug)
 
-    def run(self, debug=False):
+    def run(self):
         self.window.mainloop()
 
 
@@ -381,4 +380,4 @@ if __name__ == "__main__":
                         filename='/MSOInstaller.log',
                         filemode='w')
 
-    app(window).run(False)
+    app(window,True).run()
