@@ -142,6 +142,7 @@ class MSP(ttk.Frame):
 class NVP(ttk.Frame):
     Local_NID = tkinter.Variable(value="输入Nid")
     Local_BTNV = tkinter.Variable(value="Download it")
+    Local_OnGoing = tkinter.Variable(value="|             to be installed.             |")
     Local_searching = False
     Local_searched = False
     Local_Downloading = False
@@ -178,6 +179,15 @@ class NVP(ttk.Frame):
             displaycolumns='#all',
             selectmode='extended')
         self.t.grid(column=0, row=1, columnspan=3, sticky='we')
+        
+        ttk.Label(
+            self,
+            textvariable= self.Local_OnGoing,
+            width=44,
+            font=("-size",24)).grid(
+            column=0,
+            columnspan=3,
+            row=2)
 
         ttk.Button(
             self,
@@ -185,22 +195,28 @@ class NVP(ttk.Frame):
             command=self.delbktree,
             style='my.TButton').grid(
             column=0,
-            row=2)
+            row=3)
         ttk.Button(
             self,
             text=" Clear ",
             command=self.search_clear,
             style='my.TButton').grid(
             column=1,
-            row=2)
+            row=3)
         ttk.Button(
             self,
             textvariable=self.Local_BTNV,
             command=self.download,
             style='my.TButton').grid(
             column=2,
-            row=2)
+            row=3)
 
+    def going(self,Total:int,now:int,Alert:str,u='*',e=' ',maxl=20):
+        going = u*int(now*maxl/Total)+e*int(maxl - now*maxl/Total)
+        res = f"{Alert:<12s}::{going} {now:04d}/{Total:04d}"
+        self.Local_OnGoing.set(res)
+        return
+    
     def search(self):
         if self.Local_searched:
             self.Local_NID.set("Searched")
@@ -257,6 +273,45 @@ class NVP(ttk.Frame):
 
     def download_main(self):
         self.Local_Downloading = True
+        if not os.path.exists(f"Cache/{self.MSO.nid}"):
+            os.mkdir(f"Cache/{self.MSO.nid}")
+        with open(f"Cache/{self.MSO.nid}/meta.json", 'w', encoding='utf-8') as f:
+            json.dump(self.MSO.bookMeta, f)
+        bkt = {}
+        maxl = 0
+        for ch in self.t.get_children():
+            chnode = []
+            maxl += len(self.t.get_children(ch))
+            for ep in self.t.get_children(ch):
+                chnode.append({'cid=': str(self.t.item(ep)['values'][0])})
+            bkt.update({str(self.t.item(ch)['text']): chnode})
+        self.MSO.booktree = bkt
+        tls = []
+        now = 0
+        for _ in bkt.keys():
+            for ep in bkt[_]:
+                cid = ep["cid="]
+                now += 1
+                self.going(maxl,now,cid)
+                epb, tit = self.MSO.EPSearch(cid=cid)
+                ep["Title"] = tit
+                cid = cid.replace("=", '_')
+                tls.append(
+                    threading.Thread(
+                        target=self.MSO.EPdr,
+                        kwargs={
+                            'ep': epb,
+                            'SavePath': f"Cache/{self.MSO.nid}/{ cid }.xhtml"}))
+                tls[-1].start()
+        [_.join() for _ in tls]
+        with open(f"Cache/{self.MSO.nid}/init.json", 'w', encoding='utf-8') as f:
+            json.dump(bkt, f)
+        self.MSO.modconf(upd={self.MSO.nid: self.MSO.bookTit})
+        self.Local_OnGoing.set("Done")
+        self.Local_Downloading = False
+        self.Local_Downloaded = False
+        return
+        self.Local_Downloading = True
         bkt = {}
         for ch in self.t.get_children():
             chnode = []
@@ -273,6 +328,7 @@ class NVP(ttk.Frame):
         tls = []
         for _ in bkt.keys():
             for ep in bkt[_]:
+                self.Local_OnGoing.set()
                 cid = ep["cid="]
                 epb, tit = self.MSO.EPSearch(cid=cid)
                 ep["Title"] = tit
@@ -325,7 +381,6 @@ class HDP(ttk.Frame):
         r = self.t.item(self.t.selection()[0])["values"]
         threading.Thread(target=MSOEpub(
             *(self.t.item(self.t.selection()[0]))["values"]).out).start()
-        print(r)
 
     def refresh(self):
         self.t.delete(*self.t.get_children())
