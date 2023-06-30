@@ -120,9 +120,7 @@ class Masiro:
         try:
             oHtml = self.Web.execute_script(
                 "return document.getElementsByClassName('chapter-ul')[0].outerHTML;")
-            sp = bs4.BeautifulSoup(oHtml)
-            # with open('cache.html','r',encoding='utf-8') as f:
-            #    sp = bs4.BeautifulSoup(f.read(),"html.parser")
+            sp = bs4.BeautifulSoup(oHtml,"html.parser")
             CHNames = [bTag.string.strip()
                        for bTag in sp.select("li[class='chapter-box'] b")]
             EPLists = [[{"path": als["href"], "tTitle":als.select_one("span").string.replace(
@@ -235,7 +233,6 @@ class MSOEpub:
                                              '=', '_') + ".xhtml",
                                          lang='cn',
                                          content=re.sub(u"[\\x00-\\x08\\x0b\\x0e-\\x1f\\x7f]", '', f.read()))
-                # print(page.content)
                 bk.add_item(page)
                 spine_tmp.append(page)
                 eps.append(page)

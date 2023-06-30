@@ -10,8 +10,8 @@ import logging
 
 import sv_ttk
 
-sv_ttk.set_theme("dark")
-
+if __name__ == "__main__":
+    window = tkinter.Tk(className="Masiro Installer by BeetSoup128")
 
 class MSP(ttk.Frame):
     try:
@@ -362,15 +362,15 @@ class MSOI(ttk.Notebook):
         self.grid(column=0, row=0)
 
 
-class app(tkinter.Tk):
-    def __init__(self, SN: str = "MasiroInstaller", BN: str = "MSOI",
-                 CN: str = "Masiro Installer by BeetSoup128"):
-        super().__init__(SN, BN, CN)
-        self.geometry('720x480')
-        self.Local_MSOI = MSOI(self, ttk.Style())
+class app():
+    def __init__(self,window:tkinter.Tk):
+        self.window = window
+        self.window.geometry('720x480')
+        sv_ttk.set_theme("dark")
+        self.Local_MSOI = MSOI(self.window, ttk.Style())
 
     def run(self, debug=False):
-        self.mainloop()
+        self.window.mainloop()
 
 
 if __name__ == "__main__":
@@ -380,4 +380,4 @@ if __name__ == "__main__":
                         filename='/MSOInstaller.log',
                         filemode='w')
 
-    app().run(False)
+    app(window).run(False)
