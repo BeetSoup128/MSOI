@@ -49,7 +49,7 @@ class Masiro:
         for rm in remove:
             self.conf[rm] = None
             del self.conf[rm]
-        with open("./Cache/sav.json", '2', encoding='utf-8') as f:
+        with open("./Cache/sav.json", 'w', encoding='utf-8') as f:
             json.dump(self.conf, f)
 
     def login(self, name: str, pwd: str, msoHOST: str = "https://masiro.me",
