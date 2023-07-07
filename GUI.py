@@ -322,20 +322,23 @@ class HDP(ttk.Frame):
         self.t = ttk.Treeview(
             self,
             columns=(
-                'nid',
-                'title'),
+                'title',
+                'nid'),
             selectmode='browse',
-            show='tree')
+            show='headings')
+        self.t.column('#0', width=0, stretch=True)
+        self.t.column('#1', anchor='center', width=520)
+        self.t.column('#2', anchor='center', width=140)
         self.t.grid(column=0, columnspan=3, row=0)
         self.sav = ttk.Button(
             self,
-            text="Save to ./Result",
+            text=" Save to ./Result ",
             command=self.save,
             style='my.TButton')
         self.sav.grid(column=0, columnspan=2, row=1)
         self.ref = ttk.Button(
             self,
-            text="Refresh",
+            text=" Refresh ",
             command=self.refresh,
             style='my.TButton')
         self.ref.grid(column=2, columnspan=1, row=1)
@@ -344,7 +347,7 @@ class HDP(ttk.Frame):
     def save(self):
         if len(self.t.selection()) == 0:
             return
-        r = self.t.item(self.t.selection()[0])["values"]
+        #r = self.t.item(self.t.selection()[0])["values"]
         threading.Thread(target=MSOEpub(
             *(self.t.item(self.t.selection()[0]))["values"]).out).start()
 
@@ -352,11 +355,11 @@ class HDP(ttk.Frame):
         self.t.delete(*self.t.get_children())
         with open("./Cache/sav.json", 'r', encoding='utf-8') as f:
             self.sav = json.load(f)
-        self.t.heading('nid', text="NovelID", anchor='w')
         self.t.heading('title', text="BookName", anchor='w')
+        self.t.heading('nid', text="NovelID", anchor='w')
         del self.sav["nid="]
         for nids in self.sav.keys():
-            self.t.insert('', 'end', values=(nids, self.sav[nids]))
+            self.t.insert('', 'end', values=(f"{self.sav[nids]:<32s}", nids))
 
 
 class MSOI(ttk.Notebook):
@@ -398,7 +401,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG,
                         format='%(asctime)s %(filename)s[line:%(lineno)d] %(levelname)s %(message)s',
                         datefmt='%a, %d %b %Y %H:%M:%S',
-                        filename='/MSOInstaller.log',
+                        filename='MSOInstaller.log',
                         filemode='w')
 
     app(window,True).run()
