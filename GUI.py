@@ -293,6 +293,8 @@ class NVP(ttk.Frame):
                 cid = ep["cid="]
                 now += 1
                 self.going(maxl,now,cid)
+                if os.path.exists(f"Cache/{self.MSO.nid}/{ cid }.xhtml"):
+                    continue
                 epb, tit = self.MSO.EPSearch(cid=cid)
                 ep["Title"] = tit
                 cid = cid.replace("=", '_')
@@ -308,42 +310,6 @@ class NVP(ttk.Frame):
             json.dump(bkt, f)
         self.MSO.modconf(upd={self.MSO.nid: self.MSO.bookTit})
         self.Local_OnGoing.set("Done")
-        self.Local_Downloading = False
-        self.Local_Downloaded = False
-        return
-        self.Local_Downloading = True
-        bkt = {}
-        for ch in self.t.get_children():
-            chnode = []
-            for ep in self.t.get_children(ch):
-                chnode.append({'cid=': str(self.t.item(ep)['values'][0])})
-            bkt.update({str(self.t.item(ch)['text']): chnode})
-        self.MSO.booktree = bkt
-        if not os.path.exists(f"Cache/{self.MSO.nid}"):
-            os.mkdir(f"Cache/{self.MSO.nid}")
-        with open(f"Cache/{self.MSO.nid}/init.json", 'w', encoding='utf-8') as f:
-            json.dump(bkt, f)
-        with open(f"Cache/{self.MSO.nid}/meta.json", 'w', encoding='utf-8') as f:
-            json.dump(self.MSO.bookMeta, f)
-        tls = []
-        for _ in bkt.keys():
-            for ep in bkt[_]:
-                self.Local_OnGoing.set()
-                cid = ep["cid="]
-                epb, tit = self.MSO.EPSearch(cid=cid)
-                ep["Title"] = tit
-                cid = cid.replace("=", '_')
-                tls.append(
-                    threading.Thread(
-                        target=self.MSO.EPdr,
-                        kwargs={
-                            'ep': epb,
-                            'SavePath': f"Cache/{self.MSO.nid}/{ cid }.xhtml"}))
-                tls[-1].start()
-        [_.join() for _ in tls]
-        with open(f"Cache/{self.MSO.nid}/init.json", 'w', encoding='utf-8') as f:
-            json.dump(bkt, f)
-        self.MSO.modconf(upd={self.MSO.nid: self.MSO.bookTit})
         self.Local_Downloading = False
         self.Local_Downloaded = False
         return
